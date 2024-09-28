@@ -9,7 +9,7 @@ class DBClient {
     const uri = `mongodb://${host}:${port}/${database}`;
 
     this.client = MongoClient(uri, { useUnifiedTopology: true });
-    this.client.connect()
+    this.client.connect();
   }
 
   isAlive() {
