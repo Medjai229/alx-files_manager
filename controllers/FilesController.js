@@ -3,9 +3,9 @@ import path from 'path';
 import fs from 'fs';
 import { ObjectId } from 'mongodb';
 import mime from 'mime-types';
+import Queue from 'bull';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
-import Queue from 'bull';
 
 const fileQueue = new Queue('fileQueue');
 
@@ -227,13 +227,13 @@ class FilesController {
   static async getFile(req, res) {
     const token = req.headers['x-token'];
     const fileId = req.params.id;
-    const size = req.query.size;
-  
+    const { size } = req.query;
+
     const file = await dbClient.client.db().collection('files').findOne({ _id: ObjectId(fileId) });
     if (!file) {
       return res.status(404).json({ error: 'Not found' });
     }
-  
+
     if (!file.isPublic) {
       if (!token) {
         return res.status(404).json({ error: 'Not found' });
@@ -243,20 +243,20 @@ class FilesController {
         return res.status(404).json({ error: 'Not found' });
       }
     }
-  
+
     if (file.type === 'folder') {
       return res.status(400).json({ error: "A folder doesn't have content" });
     }
-  
+
     let filePath = file.localPath;
     if (size && ['100', '250', '500'].includes(size)) {
       filePath = `${file.localPath}_${size}`;
     }
-  
+
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Not found' });
     }
-  
+
     const mimeType = mime.lookup(file.name);
     return res.setHeader('Content-Type', mimeType).status(200).sendFile(path.resolve(filePath));
   }
