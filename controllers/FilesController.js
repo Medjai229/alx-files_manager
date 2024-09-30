@@ -258,7 +258,8 @@ class FilesController {
     }
 
     const mimeType = mime.lookup(file.name);
-    return res.setHeader('Content-Type', mimeType).status(200).sendFile(path.resolve(filePath));
+    const data = await fs.promises.readFile(filePath);
+    return res.header('Content-Type', mimeType).status(200).send(data);
   }
 }
 
