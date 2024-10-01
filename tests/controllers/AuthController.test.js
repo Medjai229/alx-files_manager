@@ -45,8 +45,27 @@ describe('Auth Endpoints', () => {
     });
   });
 
+  describe('GET /disconnect', () => {
+    it('should disconnect user', async () => {
+      const res = await request(app).get('/disconnect').set('x-token', userToken);
+      expect(res.status).to.equal(204);
+      expect(res.body).to.be.empty;
+    });
+
+    it('should return 401 for unauthorized (no token provided)', async () => {
+      const res = await request(app).get('/disconnect').set('x-token', '');
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 401 for unauthorized (no user found)', async () => {
+      const res = await request(app).get('/disconnect').set('x-token', 'notAToken');
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+  });
+
   after(async () => {
     await dbClient.client.db().collection('users').deleteOne({ email: userData.email });
-    await redisClient.del(`auth_${userToken}`);
   });
 })
