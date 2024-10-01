@@ -1,6 +1,7 @@
 /* eslint-disable jest/prefer-expect-assertions */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable jest/valid-expect */
+/* eslint-disable jest/lowercase-name */
 import request from 'supertest';
 import { expect } from 'chai';
 import app from '../../server';

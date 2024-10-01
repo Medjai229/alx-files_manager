@@ -1,10 +1,11 @@
 /* eslint-disable jest/prefer-expect-assertions */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable jest/valid-expect */
+/* eslint-disable jest/lowercase-name */
+/* eslint-disable no-undef */
 import request from 'supertest';
 import { expect } from 'chai';
 import dbClient from '../../utils/db';
-import redisClient from '../../utils/redis';
 import app from '../../server';
 
 describe('Auth Endpoints', () => {
@@ -68,4 +69,4 @@ describe('Auth Endpoints', () => {
   after(async () => {
     await dbClient.client.db().collection('users').deleteOne({ email: userData.email });
   });
-})
+});
