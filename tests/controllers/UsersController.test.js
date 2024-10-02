@@ -59,7 +59,7 @@ describe('User Endpoints', () => {
     });
 
     it('should return 401 for unauthorized (no token)', async () => {
-      const res = await request(app).get('/users/me').set('x-token', '');
+      const res = await request(app).get('/users/me');
       expect(res.status).to.equal(401);
       expect(res.body).to.have.property('error', 'Unauthorized');
     });
