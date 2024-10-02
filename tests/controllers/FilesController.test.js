@@ -146,6 +146,68 @@ describe('Files Endpoints', () => {
     });
   });
 
+  describe('PUT /files/:id/publish', () => {
+    it('should publish a file', async () => {
+      const res = await request(app).put(`/files/${fileId}/publish`).set('x-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('id', fileId)
+      expect(res.body).to.have.property('userId', userId);
+      expect(res.body).to.have.property('name', fileData.name);
+      expect(res.body).to.have.property('type', fileData.type);
+      expect(res.body).to.have.property('isPublic', true);
+      expect(res.body).to.have.property('parentId', 0);
+    });
+
+    it('should return 401 for unauthorized (no token)', async () => {
+      const res = await request(app).put(`/files/${fileId}/publish`);
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 401 for unauthorized (no userId found)', async () => {
+      const res = await request(app).put(`/files/${fileId}/publish`).set('x-token', 'notAToken');
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 404 for file not found', async () => {
+      const res = await request(app).put('/files/123456123456/publish').set('x-token', userToken);
+      expect(res.status).to.equal(404);
+      expect(res.body).to.have.property('error', 'Not found');
+    });
+  });
+
+  describe('PUT /files/:id/unpublish', () => {
+    it('should publish a file', async () => {
+      const res = await request(app).put(`/files/${fileId}/unpublish`).set('x-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('id', fileId)
+      expect(res.body).to.have.property('userId', userId);
+      expect(res.body).to.have.property('name', fileData.name);
+      expect(res.body).to.have.property('type', fileData.type);
+      expect(res.body).to.have.property('isPublic', false);
+      expect(res.body).to.have.property('parentId', 0);
+    });
+
+    it('should return 401 for unauthorized (no token)', async () => {
+      const res = await request(app).put(`/files/${fileId}/unpublish`);
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 401 for unauthorized (no userId found)', async () => {
+      const res = await request(app).put(`/files/${fileId}/unpublish`).set('x-token', 'notAToken');
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 404 for file not found', async () => {
+      const res = await request(app).put('/files/123456123456/unpublish').set('x-token', userToken);
+      expect(res.status).to.equal(404);
+      expect(res.body).to.have.property('error', 'Not found');
+    });
+  });
+
   after(async () => {
     await dbClient.client.db().collection('users').deleteOne({ email: userData.email });
     
