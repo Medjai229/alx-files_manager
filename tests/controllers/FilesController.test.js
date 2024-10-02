@@ -47,7 +47,7 @@ describe('Files Endpoints', () => {
     });
 
     it('should return 401 for unauthorized (no token)', async () => {
-      const res = await request(app).post('/files').set('x-token', '').send(fileData);
+      const res = await request(app).post('/files').send(fileData);
       expect(res.status).to.equal(401);
       expect(res.body).to.have.property('error', 'Unauthorized');
     });
@@ -84,6 +84,65 @@ describe('Files Endpoints', () => {
       });
       expect(res.status).to.equal(400);
       expect(res.body).to.have.property('error', 'Parent not found');
+    });
+  });
+
+  describe('GET /files/:id', () => {
+    it('should return file info', async () => {
+      const res = await request(app).get(`/files/${fileId}`).set('x-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('id', fileId)
+      expect(res.body).to.have.property('userId', userId);
+      expect(res.body).to.have.property('name', fileData.name);
+      expect(res.body).to.have.property('type', fileData.type);
+      expect(res.body).to.have.property('isPublic', false);
+      expect(res.body).to.have.property('parentId', 0);
+    });
+
+    it('should return 401 for unauthorized (no token)', async () => {
+      const res = await request(app).get(`/files/${fileId}`);
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 401 for unauthorized (no userId found)', async () => {
+      const res = await request(app).get(`/files/${fileId}`).set('x-token', 'NotAToken');
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 404 for file not found', async () => {
+      const res = await request(app).get('/files/123456123456').set('x-token', userToken);
+      expect(res.status).to.equal(404);
+      expect(res.body).to.have.property('error', 'Not found');
+    });
+  });
+
+  describe('GET /files', () => {
+    it('should return a list of files', async () => {
+      const res = await request(app).get('/files').set('x-token', userToken);
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('array');
+      expect(res.body).to.deep.include({
+        id: fileId,
+        userId: userId,
+        name: fileData.name,
+        type: fileData.type,
+        isPublic: false,
+        parentId: 0,
+      });
+    });
+
+    it('should return 401 for unauthorized (no token)', async () => {
+      const res = await request(app).get('/files');
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
+    });
+
+    it('should return 401 for unauthorized (no userId found)', async () => {
+      const res = await request(app).get('/files').set('x-token', 'NotAToken');
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('error', 'Unauthorized');
     });
   });
 
